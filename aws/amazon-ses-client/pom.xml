@@ -102,46 +102,20 @@
 			</plugin>
 		</plugins>
 	</build>
-	
-	<repositories>
-		<repository>
-			<id>CineApp</id>
-			<url>
-				https://pkgs.dev.azure.com/CineApp/CineApp/_packaging/CineApp/maven/v1</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+
 
 	<distributionManagement>
 		<repository>
-			<id>CineApp</id>
-			<url>
-				https://pkgs.dev.azure.com/CineApp/CineApp/_packaging/CineApp/maven/v1</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/GustavoA198/adapters</url>
 		</repository>
+		<snapshotRepository>
+			<id>github</id>
+			<name>GitHub Packages Snapshots</name>
+			<url>https://maven.pkg.github.com/GustavoA198/adapters</url>
+		</snapshotRepository>
 	</distributionManagement>
-	
-<!--	<dependencyManagement>-->
-<!--		<dependencies>-->
-<!--			<dependency>-->
-<!--				<groupId>io.awspring.cloud</groupId>-->
-<!--				<artifactId>spring-cloud-aws-dependencies</artifactId>-->
-<!--				<version>3.2.1</version>-->
-<!--				<type>pom</type>-->
-<!--				<scope>import</scope>-->
-<!--			</dependency>-->
-<!--		</dependencies>-->
-		
-<!--	</dependencyManagement>-->
+
 
 </project>

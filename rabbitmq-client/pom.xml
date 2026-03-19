@@ -90,33 +90,20 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
+
 	<distributionManagement>
 		<repository>
-			<id>CineApp</id>
-			<url>
-				https://pkgs.dev.azure.com/CineApp/CineApp/_packaging/CineApp/maven/v1</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/GustavoA198/adapters</url>
 		</repository>
+		<snapshotRepository>
+			<id>github</id>
+			<name>GitHub Packages Snapshots</name>
+			<url>https://maven.pkg.github.com/GustavoA198/adapters</url>
+		</snapshotRepository>
 	</distributionManagement>
-	
-	<repositories>
-		<repository>
-			<id>CineApp</id>
-			<url>
-				https://pkgs.dev.azure.com/CineApp/CineApp/_packaging/CineApp/maven/v1</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+
 
 </project>

@@ -122,18 +122,20 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
+
 	<distributionManagement>
 		<repository>
-			<id>${publish.repository.id}</id>
-			<url>${publish.repository.url}</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/GustavoA198/adapters</url>
 		</repository>
+		<snapshotRepository>
+			<id>github</id>
+			<name>GitHub Packages Snapshots</name>
+			<url>https://maven.pkg.github.com/GustavoA198/adapters</url>
+		</snapshotRepository>
 	</distributionManagement>
+
 
 </project>

@@ -173,8 +173,3 @@ adapters/
   rabbitmq-client/
   redis-client/
 ```
-
----
-
-Si quieres automatizar publicaciones por tags, el siguiente paso recomendado es agregar un workflow en `.github/workflows/publish-packages.yml`.
-

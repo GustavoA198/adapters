@@ -32,6 +32,7 @@ import co.com.clients.rabbitmq.handler.RabbitMqBeforePublishPostProcessorsHandle
 import co.com.clients.rabbitmq.handler.RabbitMqBeforeReadMessageHandler;
 import co.com.clients.parent.config.scope.OperationContextUtility;
 import co.com.clients.parent.exception.AppException;
+import co.com.clients.parent.exception.BackendException;
 import co.com.clients.parent.exception.ErrorType;
 import co.com.clients.parent.exception.IntegrationException;
 import co.com.clients.parent.service.MessageService;
@@ -116,43 +117,45 @@ public class RabbitConfig {
     @Bean
 	RabbitListenerErrorHandler rabbitMqErrorHandler() {
 		return (amqpMessage, channel, message, exception) -> {
-			// Log error
-
-			// si el mensaje tiene el header de dlx, no se procesa el error
+			
+			// Si el mensaje tiene el header de dlx, no se procesa el error - rethrow para DLX maneje el retry
 			if(amqpMessage.getMessageProperties().getHeaders().get("dlx") != null) {
 				log.debug("El mensaje tiene el header dlx, no se procesa el error");
 				throw exception;
 			}
 			
-			// Si el mensaje no tiene replay to, se retorna null
-			if(amqpMessage.getMessageProperties().getReplyTo() == null) {
-                return null;
-			}
-
-			// Personaliza el manejo del error
-
+			// Personaliza el manejo del error - siempre propagar el error al caller
 			AppException cineappException = new AppException();
-			IntegrationException vbException = null;
 			
 			try {
-				if (exception instanceof ListenerExecutionFailedException) {
-
-					ListenerExecutionFailedException listenerException = (ListenerExecutionFailedException) exception;
-					Object cause = listenerException.getCause(); // Obtener la causa raÃ­z
-					
-					if (cause instanceof IntegrationException){
-						vbException = (IntegrationException) cause;
-					}
-				} else if (exception.getCause() instanceof IntegrationException) {
-					vbException = (IntegrationException) exception.getCause();
+				Object rootCause = null;
+				
+				if (exception instanceof ListenerExecutionFailedException listenerException) {
+					rootCause = listenerException.getCause();
+				} else if (exception.getCause() != null) {
+					rootCause = exception.getCause();
 				}
 				
-				if (vbException != null) {
-					String messageError = messageService.getMessage(vbException.getException(), vbException.getParams());
-					messageError = !messageError.isEmpty() ? messageError : exception.getMessage();
-					cineappException.setCode(vbException.getCustomError() != null ? vbException.getCustomError() : vbException.getException());
+				if (rootCause instanceof IntegrationException integrationEx) {
+					String errorCode = integrationEx.getCustomError() != null ? integrationEx.getCustomError() : integrationEx.getException();
+					String messageError = messageService.getMessage(errorCode, integrationEx.getParams());
+					// Si messageService no encontró el código, usar el mensaje original de la excepción
+					if (messageError == null || messageError.isEmpty() || messageError.equals(errorCode)) {
+						messageError = integrationEx.getMessage();
+					}
+					cineappException.setCode(errorCode);
 					cineappException.setMessage(messageError);
-					cineappException.setErrorType(vbException.getErrorType());
+					cineappException.setErrorType(integrationEx.getErrorType());
+				} else if (rootCause instanceof BackendException backendEx) {
+					String errorCode = backendEx.getCustomError() != null ? backendEx.getCustomError() : backendEx.getException();
+					String messageError = messageService.getMessage(errorCode, backendEx.getParams());
+					// Si messageService no encontró el código, devuelve el código mismo - usar el mensaje original de la excepción
+					if (messageError == null || messageError.isEmpty() || messageError.equals(errorCode)) {
+						messageError = backendEx.getMessage();
+					}
+					cineappException.setCode(errorCode);
+					cineappException.setMessage(messageError);
+					cineappException.setErrorType(backendEx.getErrorType());
 				} else {
 					log.error("Error al obtener el mensaje de error: {}", exception.getMessage(), exception);
 					cineappException.setCode("500");
@@ -163,7 +166,7 @@ public class RabbitConfig {
 					}
 					cineappException.setErrorType(ErrorType.SYSTEM);
 				}
-
+				
 			} catch (Exception e) {
 				log.error("Error al obtener el mensaje de error: {}", e.getMessage(), e);
 				cineappException.setCode("500");
@@ -174,10 +177,11 @@ public class RabbitConfig {
 				}
 				cineappException.setErrorType(ErrorType.SYSTEM);
 			}
-
-	        org.springframework.messaging.Message<AppException> errorMessage = MessageBuilder.withPayload(cineappException)
-	        		.copyHeaders(amqpMessage.getMessageProperties().getHeaders()).build();
-	        return errorMessage;
+			
+			// Siempre retornar el mensaje de error para que se propague al caller
+			org.springframework.messaging.Message<AppException> errorMessage = MessageBuilder.withPayload(cineappException)
+					.copyHeaders(amqpMessage.getMessageProperties().getHeaders()).build();
+			return errorMessage;
 		};
 	}
     

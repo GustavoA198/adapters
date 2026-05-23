@@ -12,7 +12,7 @@
 
 	<groupId>co.com.clients.parent</groupId>
 	<artifactId>rabbitmq-client</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>rabbitmq-client</name>
 	<description>Proyecto de integracion de rabbitmq</description>
 	<packaging>jar</packaging>

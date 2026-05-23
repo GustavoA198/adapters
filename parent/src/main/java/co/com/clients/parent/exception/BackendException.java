@@ -18,14 +18,15 @@ public class BackendException extends Exception {
 	private final String[] params;
 
 	public BackendException(ErrorType errorType, String exception, String... params) {
+		super(exception);
 		this.errorType = errorType;
 		this.exception = exception;
 		this.params = params;
 		this.customError = null;
 	}
-	
+
 	public BackendException(ErrorType errorType, String exception, Exception e, String... params) {
-		super(e);
+		super(exception, e);
 		this.errorType = errorType;
 		this.exception = exception;
 		this.params = params;
@@ -33,7 +34,7 @@ public class BackendException extends Exception {
 	}
 
 	public BackendException(String errorType, String exception, Exception e, String... params) {
-		super(e);
+		super(exception, e);
 		this.errorType = ErrorType.BUSINESS;
 		this.exception = exception;
 		this.params = params;
@@ -41,6 +42,7 @@ public class BackendException extends Exception {
 	}
 
 	public BackendException(String errorType, String exception, String... params) {
+		super(exception);
 		this.errorType = ErrorType.BUSINESS;
 		this.exception = exception;
 		this.params = params;

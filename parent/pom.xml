@@ -13,7 +13,7 @@
 
 	<groupId>co.com.clients.parent</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>parent</name>
 	<description>Libreria base reutilizable para integraciones</description>
 	<packaging>jar</packaging>
